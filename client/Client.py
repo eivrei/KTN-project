@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import socket
 import json
-from Client.MessageReceiver import MessageReceiver
-from Client.MessageParser import MessageParser
+import socket
+from client.MessageParser import MessageParser
+from client.MessageReceiver import MessageReceiver
 
 
 class Client:
