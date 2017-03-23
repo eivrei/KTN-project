@@ -22,13 +22,13 @@ class MessageParser:
 
     # Methods for handling the different responses
     def parse_error(self, payload):
-        print(payload["content"])
+        print(payload["content"] + "\n")
 
     def parse_info(self, payload):
-        print(payload["content"])
+        print(payload["content"] + "\n")
 
     def parse_history(self, payload):
-        print(payload["timestamp"] + "\n" + payload["sender"] + " skriver: " + payload["content"])
+        print(payload["timestamp"] + "\n" + payload["sender"] + " skriver: " + payload["content"] + "\n")
 
     def parse_message(self, payload):
-        print(payload["timestamp"] + "\n" + payload["sender"] + " skriver: " + payload["content"])
+        print(payload["timestamp"] + "\n" + payload["sender"] + " skriver: " + payload["content"] + "\n")

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import socket
+import time
 from client.MessageParser import MessageParser
 from client.MessageReceiver import MessageReceiver
 
@@ -44,14 +45,13 @@ class Client:
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
         message_receiver = MessageReceiver(self, self.connection)
-        message_receiver.start()
 
         # Forever read user input
         while True:
             input_data = input("Input: ").split()
             if input_data[0] in self.possible_inputs:
                 self.possible_inputs[input_data[0]](input_data)
-                print()
+                time.sleep(0.1)
             else:
                 print("This is not a valid request. Try again.")
 

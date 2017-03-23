@@ -24,6 +24,9 @@ class MessageReceiver(Thread):
         # Set connection
         self.connection = connection
 
+        # Start thread
+        self.start()
+
     def run(self):
         # Make MessageReceiver receive and handle payloads
         while True:

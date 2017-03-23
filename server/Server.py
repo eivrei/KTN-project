@@ -3,7 +3,7 @@ import socketserver
 import json
 import re
 import datetime
-
+import time
 
 """
 Variables and functions that must be used by all the ClientHandler objects
@@ -29,9 +29,9 @@ class ClientHandler(socketserver.BaseRequestHandler):
         self.ip = self.client_address[0]
         self.port = self.client_address[1]
         self.connection = self.request
-        self.username = ''
         self.response = {'timestamp': '', 'sender': '', 'response': '', 'content': ''}
         self.logged_in = False
+        self.username = ""
 
         # Loop that listens for messages from the client
         while True:
@@ -42,13 +42,14 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
             #eneste som kan kjøres før logget inn
             if request == "login":
-                self.login(data["content"])
+                if self in connected_clients:
+                    self.send_response("", "error", "Du er allerede logget inn med brukernavn " + self.username)
+                else:
+                    self.login(data["content"])
             elif request == "help":
                 self.help()
-
             elif not self.logged_in:
                 self.send_response(self.username, 'error', 'Disse kommandoene kan kun brukes når man er logget inn')
-
             elif request == "logout":
                 self.logout()
             elif request == "msg":
@@ -72,7 +73,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
     def help(self):
         help_txt = "Skriv login <brukernavn> for å logge in, logout for å logge ut, names for å få opp alle i chatten, " \
                    "skriv en melding for å sende eller hjelp for å returnere dette vinduet"
-        self.send_response(self.username, 'info', help_txt)
+        self.send_response("", 'info', help_txt)
 
     def message(self, message):
         # add it to history
@@ -83,8 +84,8 @@ class ClientHandler(socketserver.BaseRequestHandler):
             client.send_response(self.username, 'message', message)
 
     def logout(self):
-        connected_clients.remove(self.connection)
-        self.send_response(self.username, 'info', ("Logget ut " + self.username))
+        connected_clients.remove(self)
+        self.send_response("", 'info', ("Logget ut " + self.username))
 
     def login(self, username):
         # sjekk at brukernavn kun inneholder bokstaver og tall
@@ -92,20 +93,24 @@ class ClientHandler(socketserver.BaseRequestHandler):
             self.send_response('', 'error', "Ugyldig brukernavn, prøv igjen")
         # logger inn og lagrer brukernavn
         elif (username not in usernames):
-            usernames.append(username)
             self.username = username
+            usernames.append(username)
             connected_clients.append(self)
             self.logged_in = True
-            self.send_response(self.username, 'info', "Du er nå logget inn med brukernavn " + self.username)
-            for messages in msg_log:
-                self.send_message(messages)
+            self.send_response("", 'info', "Du er nå logget inn med brukernavn " + username)
+            self.send_history()
         # sier ifra at brukernavn finnes allerede
         else:
-            self.send_response(self.username, 'error', "Dette burkernavnet finnes allerede ;)")
+            self.send_response("", 'error', "Dette burkernavnet finnes allerede ;)")
 
     def names(self):
-        names = ','.join(name for name in usernames)
-        self.send_response(self.username, 'info', names)
+        names = ', '.join(name for name in usernames)
+        self.send_response("", 'info', names)
+
+    def send_history(self):
+        for message in msg_log:
+            self.send_message(message)
+            time.sleep(0.1)
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
