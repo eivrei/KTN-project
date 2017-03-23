@@ -44,13 +44,13 @@ class Client:
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
         message_receiver = MessageReceiver(self, self.connection)
+        message_receiver.start()
 
         # Forever read user input
         while True:
             input_data = input("Input: ").split()
             if input_data[0] in self.possible_inputs:
                 self.possible_inputs[input_data[0]](input_data)
-                message_receiver.run()
                 print()
             else:
                 print("This is not a valid request. Try again.")
@@ -108,4 +108,4 @@ if __name__ == '__main__':
 
     No alterations are necessary
     """
-    client = Client('localhost', 9998)
+    client = Client('10.24.16.251', 9998)

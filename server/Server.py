@@ -83,7 +83,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
             client.send_response(self.username, 'message', message)
 
     def logout(self):
-        connected_clients.remove(self.username)
+        connected_clients.remove(self.connection)
         self.send_response(self.username, 'info', ("Logget ut " + self.username))
 
     def login(self, username):
@@ -104,9 +104,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
             self.send_response(self.username, 'error', "Dette burkernavnet finnes allerede ;)")
 
     def names(self):
-        names = ''
-        for name in usernames:
-            names += name + ', '
+        names = ','.join(name for name in usernames)
         self.send_response(self.username, 'info', names)
 
 

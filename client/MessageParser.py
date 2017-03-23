@@ -28,7 +28,7 @@ class MessageParser:
         print(payload["content"])
 
     def parse_history(self, payload):
-        print(payload[0] + ": " + payload[1] + ": " + payload[3])
+        print(payload["timestamp"] + "\n" + payload["sender"] + " skriver: " + payload["content"])
 
     def parse_message(self, payload):
         print(payload["timestamp"] + "\n" + payload["sender"] + " skriver: " + payload["content"])
