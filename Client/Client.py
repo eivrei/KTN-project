@@ -55,8 +55,7 @@ class Client:
                 print("This is not a valid request")
 
     def disconnect(self):
-        # TODO: Handle disconnection
-        pass
+        self.connection.close()
 
     def receive_message(self, message):
         # Handle incoming message
@@ -75,6 +74,7 @@ class Client:
 
     def logout(self):
         self.send_payload()
+        self.disconnect()
 
     def help(self):
         self.send_payload()
