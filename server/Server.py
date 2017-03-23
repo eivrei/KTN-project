@@ -85,6 +85,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
     def logout(self):
         connected_clients.remove(self)
+        usernames.remove(self.username)
         self.send_response("", 'info', ("Logget ut " + self.username))
 
     def login(self, username):
