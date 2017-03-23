@@ -18,18 +18,17 @@ class Client:
         # Set up the socket connection to the server
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        # Run server
+        # Set host and port
         self.host = host
         self.server_port = server_port
-        self.run()
 
         # Set valid inputs
         self.possible_inputs = {
-            "login": self.login(self.input_content),
-            "logout": self.logout(),
-            "msg": self.message(self.input_content),
-            "names": self.names(),
-            "help": self.help()
+            "login": self.login,
+            "logout": self.logout,
+            "msg": self.message,
+            "names": self.names,
+            "help": self.help
         }
 
         self.input_content = ""
@@ -38,58 +37,68 @@ class Client:
         # Create message parser
         self.message_parser = MessageParser()
 
+        # Run server
+        self.run()
+
     def run(self):
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
         message_receiver = MessageReceiver(self, self.connection)
-        message_receiver.run()
 
         # Forever read user input
         while True:
             input_data = input("Input: ").split()
-            self.input_content = input_data[1]
             if input_data[0] in self.possible_inputs:
-                self.request["request"] = input_data[0]
-                self.possible_inputs[input_data[0]]
+                self.possible_inputs[input_data[0]](input_data)
+                message_receiver.run()
+                print()
             else:
-                print("This is not a valid request")
+                print("This is not a valid request. Try again.")
 
     def disconnect(self):
+        self.connection.shutdown(1)
         self.connection.close()
+        print("You are now disconnected")
 
     def receive_message(self, message):
         # Handle incoming message
-        self.message_parser.parse(message)
+        self.message_parser.parse(message.decode())
 
     def send_payload(self):
         json_request = json.dumps(self.request)
-        self.connection.sendall(json_request)
+        self.connection.sendall(json_request.encode())
 
-    def login(self, username):
-        if len(username) <= 1:
+    def login(self, input_data):
+        if len(input_data) <= 1:
             print("Please type in username after 'login'.")
         else:
-            self.request["content"] = username
+            self.set_request(input_data[0])
+            self.request["content"] = input_data[1]
             self.send_payload()
 
-    def logout(self):
+    def logout(self, input_data):
+        self.set_request(input_data[0])
         self.send_payload()
-        self.disconnect()
+        # self.disconnect()
 
-    def help(self):
+    def help(self, input_data):
+        self.set_request(input_data[0])
         self.send_payload()
 
-    def message(self, message):
-        if len(message) <= 1:
+    def message(self, input_data):
+        if len(input_data) <= 1:
             print("Please type in message after 'msg'.")
         else:
-            self.request["content"] = message
+            self.set_request(input_data[0])
+            self.request["content"] = " ".join(word for word in input_data[1:])
             self.send_payload()
 
-    def names(self):
+    def names(self, input_data):
+        self.set_request(input_data[0])
         self.send_payload()
 
-        # More methods may be needed!
+    def set_request(self, input_data):
+        self.request["request"] = input_data
 
 
 if __name__ == '__main__':

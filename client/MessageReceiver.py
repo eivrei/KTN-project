@@ -28,4 +28,6 @@ class MessageReceiver(Thread):
         # Make MessageReceiver receive and handle payloads
         while True:
             response = self.connection.recv(1024)
-            self.client.receive_message(response)
+            if response:
+                self.client.receive_message(response)
+                break

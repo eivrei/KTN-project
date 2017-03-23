@@ -31,4 +31,4 @@ class MessageParser:
         print(payload[0] + ": " + payload[1] + ": " + payload[3])
 
     def parse_message(self, payload):
-        print(payload[0] + ": " + payload[1] + ": " + payload[3])
+        print(payload["timestamp"] + "\n" + payload["sender"] + " skriver: " + payload["content"])
